@@ -57,7 +57,7 @@ find "${DIRECTORY}" -type f -name "${FILE_PATH%.apk}-vivocer*.apk" -exec rm {} \
 echo "=====================================START============================================="
 echo "当前应用："
 echo $(basename "${FILE_PATH}")
-if [[ $(basename "${FILE_PATH}") != ep* ]]; then
+if [ [ $(basename "${FILE_PATH}") != ep* ] || [ $(basename "${FILE_PATH}") != RB-ep* ] ]; then
     echo "错误应用名称，应用必须是 \"ep\" 开头"
     exit 1
 fi
