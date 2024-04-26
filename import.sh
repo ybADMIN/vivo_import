@@ -50,17 +50,31 @@ if ! [ $# -eq 2 ]; then
 fi
 FILE_PATH="$1"
 CER_NAME="$2"
+if ! [ -e "$FILE_PATH" ];then
+ echo "参数不正确：文件不存在 $FILE_PATH"  
+ exit 1  
+fi
 
+if ! [ -e "$CER_NAME" ];then
+ echo "参数不正确：文件不存在 $CER_NAME"  
+ exit 1  
+fi
 #删除签名过的文件
 find "${DIRECTORY}" -type f -name "${FILE_PATH%.apk}-vivocer*.apk" -exec rm {} \;
 
 echo "=====================================START============================================="
 echo "当前应用："
 echo $(basename "${FILE_PATH}")
-if [ [ $(basename "${FILE_PATH}") != ep* ] || [ $(basename "${FILE_PATH}") != RB-ep* ] ]; then
-    echo "错误应用名称，应用必须是 \"ep\" 开头"
-    exit 1
-fi
+case $(basename "${FILE_PATH}") in  
+    ep*|RB-ep*)
+        ;; # 什么都不做，如果文件名以"ep"或"RB-ep"开头  
+    *)
+        echo "错误应用名称，应用必须是 \"ep\"或\"RB-ep\" 开头"  
+        exit 1  
+        ;;  
+esac
+
+
 echo
 # echo "输入使用证书："
 # read CER_NAME
@@ -121,12 +135,23 @@ fi
 OUTAPK="$FILENAME_WITHOUT_EXTENSION-${fixName}.apk"
 # 使用 apksigner 进行签名
 apksigner sign --ks $KEY_STORE_PATH --v4-signing-enabled false --ks-key-alias $alias_key --ks-pass pass:$key_pass --out $OUTAPK $FILE_PATH
+if [ ! $? -eq 0 ]; then
+   echo "签名失败"
+   exit 1
+fi
 # 检查证书添加结果
 rm $FILE_PATH
 checkApk "$OUTAPK" "$md5_value"
-
+if [ ! $? -eq 0 ]; then
+   echo "checkApk 失败"
+   exit 1
+fi
 #上传文件到蒲公英
 source $ANDROID_BUILD_SHELL/upload.sh
+if [ ! $? -eq 0 ]; then
+   echo "upload 失败"
+   exit 1
+fi
 # 检查是否有异常发生
 if [ "$?" -ne "0" ]; then
     echo
