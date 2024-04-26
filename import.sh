@@ -12,7 +12,7 @@ xattr -d com.apple.quarantine $ANDROID_BUILD_SHELL/apksigner
 echo "Start..."
 echo
 if [ ! -e "config.sh" ]; then
-echo "请先配置config.sh文件后使用"
+echo "请先查看README.md配置config.sh文件后使用"
     exit 1
 fi
 #引入配置信息
