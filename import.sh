@@ -4,11 +4,9 @@ ANDROID_BUILD_SHELL=bin
 source $ANDROID_BUILD_SHELL/checkvivoceradd.sh
 source $ANDROID_BUILD_SHELL/cer_utils.sh
 ## 如提示没有权限可以将该代码注释，可能需要使用sudo执行
-chmod +rwx $ANDROID_BUILD_SHELL/aapt
 chmod +rwx $ANDROID_BUILD_SHELL/zip
 chmod +rwx $ANDROID_BUILD_SHELL/apksigner
 xattr -d com.apple.quarantine $ANDROID_BUILD_SHELL/zip
-xattr -d com.apple.quarantine $ANDROID_BUILD_SHELL/aapt
 xattr -d com.apple.quarantine $ANDROID_BUILD_SHELL/apksigner
 echo "Start..."
 echo
@@ -19,16 +17,6 @@ fi
 #引入配置信息
 source config.sh
 
-# 将当前目录加入到 PATH 中
-export PATH=$PATH:./$ANDROID_BUILD_SHELL/
-CURRENT_DIRECTORY=$(pwd)
-# 设置要扫描的目录路径
-DIRECTORY=$CURRENT_DIRECTORY/outApk
-META_INF_DIRECTORY=META-INF
-# 检查目录是否存在
-if [ ! -d "$DIRECTORY" ]; then
-    mkdir -p "$DIRECTORY"
-fi
 
 
 function cleanup_tempdir() {
@@ -36,6 +24,36 @@ function cleanup_tempdir() {
         # ... 执行清理操作 ...  
         rm -rf $temp_dir
     }
+
+
+# 将当前目录加入到 PATH 中
+export PATH=$PATH:./$ANDROID_BUILD_SHELL/
+CURRENT_DIRECTORY=$(pwd)
+# 设置要扫描的目录路径
+DIRECTORY=$CURRENT_DIRECTORY/outApk
+
+#创建临时文件目录
+temp_dir=build
+
+cleanup_tempdir
+if [ ! -d "$temp_dir" ]; then
+    mkdir -p "$temp_dir"
+fi
+
+trap cleanup_tempdir EXIT 
+
+META_INF_DIRECTORY=META-INF
+APK_VIVO_CER_PATH=$META_INF_DIRECTORY/VIVOEMM.CER
+# 检查目录是否存在
+if [ ! -d "$META_INF_DIRECTORY" ]; then
+    mkdir -p "$META_INF_DIRECTORY"
+fi
+
+# 检查目录是否存在
+if [ ! -d "$DIRECTORY" ]; then
+    mkdir -p "$DIRECTORY"
+fi
+
 
 ## 错误后删除临时文件
 cleanupByError(){
@@ -46,19 +64,6 @@ cleanupByError(){
 }
 
 
-#创建临时文件目录
-temp_dir=build
-cleanup_tempdir
-if [ ! -d "$temp_dir" ]; then
-    mkdir -p "$temp_dir"
-fi
-trap cleanup_tempdir EXIT 
-
-# 检查目录是否存在
-if [ ! -d "$META_INF_DIRECTORY" ]; then
-    mkdir -p "$META_INF_DIRECTORY"
-fi
-APK_VIVO_CER_PATH=$META_INF_DIRECTORY/VIVOEMM.CER
 if [ $# -eq 0 ]; then
     echo "没有传递文件名称参数。"
     exit 1
@@ -96,8 +101,13 @@ esac
 echo
 # echo "输入使用证书："
 # read CER_NAME
-rm "$APK_VIVO_CER_PATH"
+
+if [ -e "$APK_VIVO_CER_PATH" ];then
+    rm "$APK_VIVO_CER_PATH"
+fi
+
 cp "$CER_NAME" "$APK_VIVO_CER_PATH"
+
   # 获取字符串
 importCerStr=$(<"$APK_VIVO_CER_PATH")
 # 使用函数获取指定键的值
@@ -152,11 +162,16 @@ fi
 
 # 删除 META-INF/VIVOEMM.CER
 zip -d $FILE_PATH META-INF/VIVOEMM.CER >/dev/null
+
 echo "Importing certificate..."
 echo
 
 # 使用 aapt 添加 META-INF/VIVOEMM.CER
 aapt add $FILE_PATH META-INF/VIVOEMM.CER
+if [ ! $? -eq 0 ]; then
+   echo "添加证书失败"
+   exit 1
+fi
 echo
 
 FILENAME_WITHOUT_EXTENSION="$DIRECTORY/${baseName%.apk.tmp}"

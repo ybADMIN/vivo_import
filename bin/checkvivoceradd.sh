@@ -15,11 +15,15 @@ function getCerOptionMapByKey() {
 }
 
 function checkApkDevCerExists(){
-     local apk_file="$1"
-     local cer_file="META-INF/VIVOEMM.CER"
+    local apk_file="$1"
+       unZipApkFile $apk_file
+    if [ ! $? -eq 0 ]; then
+            echo "checkApkDevCerExists 解压APK失败"
+            exit 1
+    fi
+    local cer_file="META-INF/VIVOEMM.CER"
       # 解压 APK 文件
-    unzip -q -o "$apk_file" -d "$temp_dir"
-    local cer_path="$temp_dir/$cer_file"
+    local cer_path="$unzipApkDir/$cer_file"
      if [ -f "$cer_path" ]; then
         # 获取字符串
          local apkCerStr=$(<"$cer_path")
@@ -35,7 +39,17 @@ function checkApkDevCerExists(){
         return 1
     fi
 }
-
+function unZipApkFile(){
+     local apk_file="$1"
+     unzipApkDir=$temp_dir/unzipApkDir
+    if [ -e $unzipApkDir ];then
+        rm -rf $unzipApkDir
+    fi
+    unzip -q -o "$apk_file" -d "$unzipApkDir"
+    if [ ! $? -eq 0 ]; then
+            exit 1
+    fi
+}
 function checkApk() {
     # 传入参数：APK 文件路径、预期的 MD5 值
     local apk_file="$1"
@@ -50,17 +64,21 @@ function checkApk() {
     # 解压 APK 文件
     # trap cleanup_tempdir EXIT  
     echo "证书文件校验"
-    unzip -q -o "$apk_file" -d "$temp_dir"
+    unZipApkFile $apk_file
+    if [ ! $? -eq 0 ]; then
+            echo "checkApk 解压APK失败"
+            exit 1
+    fi
 
     # 检查 META-INF/VIVOEMM.CER 文件是否存在
-    local cer_path="$temp_dir/$cer_file"
+    local cer_path="$unzipApkDir/$cer_file"
     if [ -f "$cer_path" ]; then
         # 计算文件的 MD5 值
        local actual_md5=$(md5 "$cer_path" | awk '{print $4}')
 
         # 比较 MD5 值
         if [ "$actual_md5" != "$expected_md5" ]; then
-            echo "ERROR: META-INF/VIVOEMM.CER 文件的 MD5 值与预期不一致。"
+            echo "ERROR: $cer_path 文件的 MD5:$actual_md5 值与预期不一致。"
             # 清理临时目录
             return 1
         fi
@@ -68,7 +86,7 @@ function checkApk() {
         # 读取证书判断包名是否一致
 
         # 获取字符串
-         local importCerStr=$(<"$META_INF_DIRECTORY/VIVOEMM.CER")
+         local importCerStr=$(<"$APK_VIVO_CER_PATH")
          # 使用函数获取指定键的值
          local package_name=$(getValueByKey "PackageName" "$importCerStr")
 
@@ -147,8 +165,8 @@ function checkApk() {
         echo
         # # 定义要搜索的字符串
         local search_string=package=\"$package_name\"
-        java -jar $ANDROID_BUILD_SHELL/apktool_2.9.3.jar d $apk_file -o "$temp_dir/apktool"
-        local mfFiel=$temp_dir/apktool/AndroidManifest.xml
+        java -jar $ANDROID_BUILD_SHELL/apktool_2.9.3.jar d $apk_file -o "$unzipApkDir/apktool"
+        local mfFiel=$unzipApkDir/apktool/AndroidManifest.xml
 
         if ! grep -q "$search_string" "$mfFiel"; then
             echo "安装包与证书不匹配：$search_string"
