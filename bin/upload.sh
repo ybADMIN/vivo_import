@@ -7,7 +7,7 @@ fi
 # 检查文件名是否包含 vivocerRES
 if ! echo "$(basename "$OUTAPK")" | grep -q "$RES_NAME"; then
     echo "非正式包不上传蒲公英"
-    exit 0
+    return
 fi
 # 将用户输入转换为小写字母以便比较
 read -p "是否上传到蒲公英？（输入 Y 或 N）: " choice
@@ -27,10 +27,9 @@ fi
 echo "准备上传APK:$OUTAPK"
 
 ##上传数据到蒲公英
-tmpDir=$DIRECTORY/tmp
 respFile=$tmpDir/temp.log
 hostName=$(echo $(hostname | sed 's/.local//'))
-rm -fr $respFile && mkdir -p $tmpDir
+rm -fr $respFile && mkdir -p $temp_dir
 buildUpdateDescription="VIVO 正式打包完成，手动导入${fixName}证书"
 #上传apk到蒲公英
 updatePrams=(${ANDROID_PGY//\,/ })

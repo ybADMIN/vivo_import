@@ -30,6 +30,23 @@ if [ ! -d "$DIRECTORY" ]; then
     mkdir -p "$DIRECTORY"
 fi
 
+#创建临时文件目录
+temp_dir=$(mktemp -d)
+function cleanup_tempdir() {
+        echo "清理临时目录"  
+        # ... 执行清理操作 ...  
+         rm -rf "$temp_dir"
+    }
+## 错误后删除临时文件
+cleanupByError(){
+  if [ -e "$OUTAPK" ]; then
+    echo "出现错误删除输出APK"  
+      rm $OUTAPK 
+    fi
+}
+trap cleanup_tempdir EXIT 
+
+
 # 检查目录是否存在
 if [ ! -d "$META_INF_DIRECTORY" ]; then
     mkdir -p "$META_INF_DIRECTORY"
@@ -69,7 +86,6 @@ case $(basename "${FILE_PATH}") in
         ;;  
 esac
 
-
 echo
 # echo "输入使用证书："
 # read CER_NAME
@@ -87,7 +103,6 @@ if [ "$import_CustomShortName" == "$DEV_CER" ]; then
     # 检查用户输入是否为 Y 或 y，如果是，则执行操作
     if [ "${choice}" = "y" ]; then
         echo "使用开发证书"
-        # 在这里执行你的操作
     elif [ "${choice}" = "n" ]; then
         echo "用户取消操作"
         exit 1
@@ -102,16 +117,10 @@ echo "证书MD5 $md5_value"
 cat $APK_VIVO_CER_PATH | grep -E "PackageName|CustomShortName|DeviceIds"
 # 生成临时文件用于证书处理
 baseName=$(basename "$FILE_PATH")
-cp $FILE_PATH "$DIRECTORY/${baseName}.tmp"
-FILE_PATH="$DIRECTORY/${baseName}.tmp"
-# 删除 META-INF/VIVOEMM.CER
-zip -d $FILE_PATH META-INF/VIVOEMM.CER >/dev/null
-echo "Importing certificate..."
-echo
+cp $FILE_PATH "$temp_dir/${baseName}.tmp"
+FILE_PATH="$temp_dir/${baseName}.tmp"
 
-# 使用 aapt 添加 META-INF/VIVOEMM.CER
-aapt add $FILE_PATH META-INF/VIVOEMM.CER
-echo
+#结束后清理数据
 
 fixName="$ERR_NAME"
 # 添加证书后缀
@@ -122,11 +131,26 @@ fi
 if [[ "$import_CustomShortName" == "$RES_CER" ]]; then
     echo "商用证书导入"
     fixName="$RES_NAME"
+    #商用证书导入源APK必须存在开发证书
+    checkApkDevCerExists $FILE_PATH
+    if [ ! $? -eq 0 ]; then
+        echo "checkApkDevCerExists 失败"
+        exit 1
+    fi
 fi
 if [[ "$fixName" == "$ERR_NAME" ]]; then
     echo "非商业证书，也非开发证书"
     exit 1
 fi
+
+# 删除 META-INF/VIVOEMM.CER
+zip -d $FILE_PATH META-INF/VIVOEMM.CER >/dev/null
+echo "Importing certificate..."
+echo
+
+# 使用 aapt 添加 META-INF/VIVOEMM.CER
+aapt add $FILE_PATH META-INF/VIVOEMM.CER
+echo
 
 FILENAME_WITHOUT_EXTENSION=${FILE_PATH%.apk.tmp}
 # 获取不带扩展名的文件名
@@ -140,27 +164,26 @@ OUTAPK="$FILENAME_WITHOUT_EXTENSION-${fixName}.apk"
 apksigner sign --ks $KEY_STORE_PATH --v4-signing-enabled false --ks-key-alias $alias_key --ks-pass pass:$key_pass --out $OUTAPK $FILE_PATH
 if [ ! $? -eq 0 ]; then
    echo "签名失败"
+   cleanupByError
    exit 1
 fi
 # 检查证书添加结果
-rm $FILE_PATH
+
 checkApk "$OUTAPK" "$md5_value"
 if [ ! $? -eq 0 ]; then
    echo "checkApk 失败"
+   cleanupByError
    exit 1
 fi
 #上传文件到蒲公英
 source $ANDROID_BUILD_SHELL/upload.sh
 if [ ! $? -eq 0 ]; then
    echo "upload 失败"
+   cleanupByError
    exit 1
 fi
-# 检查是否有异常发生
-if [ "$?" -ne "0" ]; then
-    echo
-    echo "发生异常，删除文件 $OUTAPK"
-    rm -f "$OUTAPK"
-fi
+#完成后删除临时文件
+rm $FILE_PATH 
 echo "=====================================END============================================="
 # # 遍历目录中的文件
 # for FILE_PATH in $(find $DIRECTORY -name "*.apk" ); do
