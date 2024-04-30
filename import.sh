@@ -152,7 +152,7 @@ echo
 aapt add $FILE_PATH META-INF/VIVOEMM.CER
 echo
 
-FILENAME_WITHOUT_EXTENSION=${FILE_PATH%.apk.tmp}
+FILENAME_WITHOUT_EXTENSION="$DIRECTORY/${baseName%.apk.tmp}"
 # 获取不带扩展名的文件名
 
 if [[ "$FILENAME_WITHOUT_EXTENSION" =~ -vivocer[A-Za-z]+ ]]; then
@@ -168,7 +168,6 @@ if [ ! $? -eq 0 ]; then
    exit 1
 fi
 # 检查证书添加结果
-
 checkApk "$OUTAPK" "$md5_value"
 if [ ! $? -eq 0 ]; then
    echo "checkApk 失败"
