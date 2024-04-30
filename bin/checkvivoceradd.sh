@@ -18,7 +18,6 @@ function checkApkDevCerExists(){
      local apk_file="$1"
      local cer_file="META-INF/VIVOEMM.CER"
       # 解压 APK 文件
-    temp_dir=$(mktemp -d) 
     unzip -q -o "$apk_file" -d "$temp_dir"
     local cer_path="$temp_dir/$cer_file"
      if [ -f "$cer_path" ]; then
@@ -49,7 +48,6 @@ function checkApk() {
     fi
 
     # 解压 APK 文件
-    temp_dir=$(mktemp -d)
     # trap cleanup_tempdir EXIT  
     echo "证书文件校验"
     unzip -q -o "$apk_file" -d "$temp_dir"

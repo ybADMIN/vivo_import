@@ -30,13 +30,13 @@ if [ ! -d "$DIRECTORY" ]; then
     mkdir -p "$DIRECTORY"
 fi
 
-#创建临时文件目录
-temp_dir=$(mktemp -d)
+
 function cleanup_tempdir() {
-        echo "清理临时目录"  
+        echo "清理临时目录 $temp_dir"  
         # ... 执行清理操作 ...  
-         rm -rf "$temp_dir"
+        rm -rf $temp_dir
     }
+
 ## 错误后删除临时文件
 cleanupByError(){
   if [ -e "$OUTAPK" ]; then
@@ -44,8 +44,15 @@ cleanupByError(){
       rm $OUTAPK 
     fi
 }
-trap cleanup_tempdir EXIT 
 
+
+#创建临时文件目录
+temp_dir=build
+cleanup_tempdir
+if [ ! -d "$temp_dir" ]; then
+    mkdir -p "$temp_dir"
+fi
+trap cleanup_tempdir EXIT 
 
 # 检查目录是否存在
 if [ ! -d "$META_INF_DIRECTORY" ]; then
@@ -182,7 +189,6 @@ if [ ! $? -eq 0 ]; then
    exit 1
 fi
 #完成后删除临时文件
-rm $FILE_PATH 
 echo "=====================================END============================================="
 # # 遍历目录中的文件
 # for FILE_PATH in $(find $DIRECTORY -name "*.apk" ); do

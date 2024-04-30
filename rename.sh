@@ -38,10 +38,16 @@ checkApk() {
 
     BASE_NAME=$(basename "$apk_file")
     BASE_DIR=$(dirname "$apk_file")
+    temp_dir=build
+    #清理缓存
+    cleanup
     # 解压 APK 文件
     echo "解压文件:$BASE_NAME"
     if [ -f "$apk_file" ]; then
-        temp_dir="$(mktemp -d)"
+        if [ ! -d "$temp_dir" ]; then
+            mkdir -p "$temp_dir"
+        fi
+
         trap cleanup EXIT
         unzip -q -o "$apk_file" -d "$temp_dir"
     else

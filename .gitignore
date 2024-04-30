@@ -4,3 +4,4 @@ config.sh
 */*.apk
 */*.CER
 outapk/*
+build/*
