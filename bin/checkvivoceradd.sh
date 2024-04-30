@@ -77,7 +77,7 @@ function checkApk() {
             echo "包名获取错误$package_name"
             return 1;
         fi
-        if [ "$RES_NAME" = "$fixName" ]; then
+        # if [ "$RES_NAME" = "$fixName" ]; then
             # 证书系统权限校验
             echo "商业证书校验系统权限"
             cerOptionMapKey=$(echo "$package_name" | sed 's/\./_/g') 
@@ -124,19 +124,24 @@ function checkApk() {
                 fi
             done
             echo "系统权限检测完成"
-            for value in $check_CustomShortName; do
-                if ! echo "$import_CustomShortName" | grep -q "$value"; then
-                    echo "CustomShortName 中的值 '$value' 不在 import_ 中存在，抛出异常！"
-                    return 1
-                fi
-            done
-            echo "证书标识检测完成"
+            if [ "$RES_NAME" = "$fixName" ]; then
+                for value in $check_CustomShortName; do
+                    if ! echo "$import_CustomShortName" | grep -q "$value"; then
+                        echo "CustomShortName 中的值 '$value' 不在 import_ 中存在，抛出异常！"
+                        return 1
+                    fi
+                done
+                echo "证书标识检测完成"
+             else
+              echo "开发证书【不检测标识】"
+            fi
+            
             if [ "$check_PackageName" != "$import_PackageName" ]; then
                 echo "PackageName 不同！ check_PackageName = $check_PackageName import_PackageName= $import_PackageName "
                 return 1
             fi
             echo "包名检测完成"
-        fi
+        # fi
        
         echo "应用与证书包名校验"
         echo
