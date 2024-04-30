@@ -27,7 +27,7 @@ fi
 echo "准备上传APK:$OUTAPK"
 
 ##上传数据到蒲公英
-respFile=$tmpDir/temp.log
+respFile=$temp_dir/temp.log
 hostName=$(echo $(hostname | sed 's/.local//'))
 rm -fr $respFile && mkdir -p $temp_dir
 buildUpdateDescription="VIVO 正式打包完成，手动导入${fixName}证书"
