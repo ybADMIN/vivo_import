@@ -1,6 +1,6 @@
 使用步骤：
 
-根目录下新建文件`config.sh`
+0. 根目录下新建文件`config.sh` 并修改对应参数
 ```shell
 #KeyStore 路径
 KEY_STORE_PATH="./bin/kt"
@@ -11,6 +11,12 @@ key_pass="123"
 ANDROID_NOTIFY_WX="企微群机器人"
 #蒲公英配置
 ANDROID_PGY="uKey=蒲公英Ukey,_api_key=蒲公英APIkey"
+#证书参数校验 需要替为自己的包名和基础证书，证书文件用于检测应用打包时候制定的正式证书配置参数是否与标准证书一致
+cerOptionMap=(
+    "com_sx_sxassistant:bin/WORKPHONE.CER"
+    "com_sx_sxDemon:bin/SXDEMON.CER"
+    "com_sx_eptest:bin/EP-TEST.CER"
+)
 
 ```
 
@@ -25,7 +31,8 @@ ANDROID_PGY="uKey=蒲公英Ukey,_api_key=蒲公英APIkey"
 3. 文件命名为标准格式
 4. 自动签名
 5. 签名后验证证书是否与传入证书一致
-6. 验证证书包名是否与应用包名一致
+6. 正式证书：标识、包名、权限、系统权限是否与config.sh cerOptionMap中标准证书一致
+7. 验证证书包名是否与应用包名一致
 
 该工具仅将证书打包进应用META-INF文件夹内，未做任何定制。您也可以自行下载使用其他工具如Android Studio打包导入。
 

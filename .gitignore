@@ -1,9 +1,6 @@
-apk/
-devCer/
-resCer/
 tmp/
-outApk/
-cers/
-META-INF/
 bin/kt
 config.sh
+*/*.apk
+*/*.CER
+outapk/*
