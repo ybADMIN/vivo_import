@@ -2,6 +2,7 @@
 ANDROID_BUILD_SHELL=bin
 #引入APK检测文件
 source $ANDROID_BUILD_SHELL/checkvivoceradd.sh
+source $ANDROID_BUILD_SHELL/cer_utils.sh
 ## 如提示没有权限可以将该代码注释，可能需要使用sudo执行
 chmod +rwx $ANDROID_BUILD_SHELL/aapt
 chmod +rwx $ANDROID_BUILD_SHELL/zip
@@ -33,12 +34,6 @@ fi
 if [ ! -d "$META_INF_DIRECTORY" ]; then
     mkdir -p "$META_INF_DIRECTORY"
 fi
-
-DEV_CER="CustomShortName:debug"
-RES_CER="CustomShortName:BJCFXX-EP"
-DEV_NAME="vivocerDEV"
-RES_NAME="vivocerRES"
-ERR_NAME="vivocerERR"
 APK_VIVO_CER_PATH=$META_INF_DIRECTORY/VIVOEMM.CER
 if [ $# -eq 0 ]; then
     echo "没有传递文件名称参数。"
@@ -80,7 +75,11 @@ echo
 # read CER_NAME
 rm "$APK_VIVO_CER_PATH"
 cp "$CER_NAME" "$APK_VIVO_CER_PATH"
-if grep -q "$DEV_CER" "$APK_VIVO_CER_PATH"; then
+  # 获取字符串
+importCerStr=$(<"$APK_VIVO_CER_PATH")
+# 使用函数获取指定键的值
+import_CustomShortName=$(getValueByKey "CustomShortName" "$importCerStr")
+if [ "$import_CustomShortName" == "$DEV_CER" ]; then
     read -p "非商业证书导入请确认执行操作？（输入 Y 或 N）: " choice
     # 将用户输入转换为小写字母以便比较
     choice=$(echo "${choice}" | tr '[:upper:]' '[:lower:]')
@@ -116,13 +115,17 @@ echo
 
 fixName="$ERR_NAME"
 # 添加证书后缀
-if grep -q "$DEV_CER" "$APK_VIVO_CER_PATH"; then
+if [[ "$import_CustomShortName" == "$DEV_CER" ]]; then
     echo "开发证书导入"
     fixName="$DEV_NAME"
 fi
-if grep -q "$RES_CER" "$APK_VIVO_CER_PATH"; then
+if [[ "$import_CustomShortName" == "$RES_CER" ]]; then
     echo "商用证书导入"
     fixName="$RES_NAME"
+fi
+if [[ "$fixName" == "$ERR_NAME" ]]; then
+    echo "非商业证书，也非开发证书"
+    exit 1
 fi
 
 FILENAME_WITHOUT_EXTENSION=${FILE_PATH%.apk.tmp}

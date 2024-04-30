@@ -23,7 +23,9 @@ cerOptionMap=(
 1. 命令行执行：import.sh <APK路径> <证书路径>"
    4、输出目录：outApk
 
-2. 检测当前文件是否存在证书 . rename.sh checkApk <APK 路径>
+2. 检测当前文件是否存在证书 
+    * . rename.sh
+    * checkApk <APK 路径>
 
 导入校验说明：
 1. 判断应用于证书是否对应

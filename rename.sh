@@ -1,4 +1,5 @@
 #!/bin/bash
+source bin/cer_utils.sh
 # 输出文件名
 checkApk() {
     # 默认不执行重命名逻辑
@@ -28,12 +29,6 @@ checkApk() {
         apk_file="$1"
     fi
 
-    DEV_NAME="vivocerDEV"
-    RES_NAME="vivocerRES"
-    ERR_NAME="vivocerERR"
-    DEV_CER="CustomShortName:debug"
-    RES_CER="CustomShortName:BJCFXX-EP"
-
     cer_file="META-INF/VIVOEMM.CER"
     # 检查参数是否为空
     if [ -z "$apk_file" ]; then
@@ -58,31 +53,35 @@ checkApk() {
     # 检查 META-INF/VIVOEMM.CER 文件是否存在
     cer_path="$temp_dir/$cer_file"
     if [ -f "$cer_path" ]; then
-        cat $cer_path | grep -E "PackageName|CustomShortName|DeviceIds"
-
-        fixName="$ERR_NAME"
-        # 添加证书后缀
-        if grep -q "$DEV_CER" "$cer_path"; then
-            echo "存在开发证书"
-            fixName="$DEV_NAME"
-        fi
-        if grep -q "$RES_CER" "$cer_path"; then
-            echo "存在商用证书"
-            fixName="$RES_NAME"
-        fi
-
-        # 使用 grep 命令查找文件名中是否包含 DEV_CER
-        if echo "$BASE_NAME" | grep -q "$fixName"; then
-            echo "已重命名文件无需命名 $fixName "
-        else
-            if $rename; then
-                FILENAME_WITHOUT_EXTENSION=${BASE_NAME%.apk}
-                OUTAPK="$BASE_DIR/$FILENAME_WITHOUT_EXTENSION-${fixName}.apk"
-                mv "$apk_file" "$OUTAPK"
-                echo "已重命名文件： $OUTAPK "
+            cat $cer_path | grep -E "PackageName|CustomShortName|DeviceIds"
+            importCerStr=$(<"$cer_path")
+            # 使用函数获取指定键的值
+            import_CustomShortName=$(getValueByKey "CustomShortName" "$importCerStr")
+            fixName="$ERR_NAME"
+            # 添加证书后缀
+            if [[ "$import_CustomShortName" == "$DEV_CER" ]]; then
+                echo "存在开发证书"
+                fixName="$DEV_NAME"
             fi
-        fi
-    else
+            if [[ "$import_CustomShortName" == "$RES_CER" ]]; then
+                echo "存在商用证书"
+                fixName="$RES_NAME"
+            fi
+
+            # 使用 grep 命令查找文件名中是否包含 DEV_CER
+            if $rename; then
+                if echo "$BASE_NAME" | grep -q "$fixName"; then
+                    echo "已重命名文件无需命名 $fixName "
+                 else
+                    FILENAME_WITHOUT_EXTENSION=${BASE_NAME%.apk}
+                    OUTAPK="$BASE_DIR/$FILENAME_WITHOUT_EXTENSION-${fixName}.apk"
+                    mv "$apk_file" "$OUTAPK"
+                    echo "已重命名文件： $OUTAPK "
+                
+                fi
+            fi
+           
+        else
         echo "源文件不存在证书"
     fi
 
@@ -94,11 +93,13 @@ checkApk() {
 cleanup() {
     echo "Cleaning up..."
     # 检查临时目录是否不为空，如果不为空，则执行清理操作
-    if [ -n "$(ls -A "$temp_dir")" ]; then
-        rm -rf "$temp_dir"
-        echo "temp_dir 存在缓存，已清理."
-    else
-        echo "temp_dir 没有缓存，无需清理."
+    if [  -e "$temp_dir" ]; then
+        if [ -n "$(ls -A "$temp_dir")" ]; then
+                rm -rf "$temp_dir"
+                echo "temp_dir 存在缓存，已清理."
+            else
+                echo "temp_dir 没有缓存，无需清理."
+        fi
     fi
     # 在这里添加清理操作
 }
