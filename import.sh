@@ -16,8 +16,7 @@ echo "请先查看README.md配置config.sh文件后使用"
 fi
 #引入配置信息
 source config.sh
-
-
+source $ANDROID_BUILD_SHELL/dirchange.sh
 
 function cleanup_tempdir() {
         echo "清理临时目录 $temp_dir"  
@@ -74,6 +73,7 @@ if ! [ $# -eq 2 ]; then
 fi
 FILE_PATH="$1"
 CER_NAME="$2"
+
 if ! [ -e "$FILE_PATH" ];then
  echo "参数不正确：文件不存在 $FILE_PATH"  
  exit 1  
@@ -98,7 +98,13 @@ case $(basename "${FILE_PATH}") in
         ;;  
 esac
 
-echo
+#证书完整性检测
+checkCersDirChange
+if [ ! $? -eq 0 ]; then
+   echo "证书完整性检测失败"
+   exit 1
+fi
+
 # echo "输入使用证书："
 # read CER_NAME
 

@@ -21,6 +21,7 @@ function checkApkDevCerExists(){
             echo "checkApkDevCerExists 解压APK失败"
             exit 1
     fi
+    echo "正式包证书导入前检测APK..."
     local cer_file="META-INF/VIVOEMM.CER"
       # 解压 APK 文件
     local cer_path="$unzipApkDir/$cer_file"
@@ -63,7 +64,7 @@ function checkApk() {
 
     # 解压 APK 文件
     # trap cleanup_tempdir EXIT  
-    echo "证书文件校验"
+    echo "证书文件校验..."
     unZipApkFile $apk_file
     if [ ! $? -eq 0 ]; then
             echo "checkApk 解压APK失败"
@@ -97,7 +98,6 @@ function checkApk() {
         fi
         # if [ "$RES_NAME" = "$fixName" ]; then
             # 证书系统权限校验
-            echo "商业证书校验系统权限"
             cerOptionMapKey=$(echo "$package_name" | sed 's/\./_/g') 
             cerCheckvalue=$(getCerOptionMapByKey "$cerOptionMapKey")
             echo "通过包名：$cerOptionMapKey 获取标准证书：$cerCheckvalue"
@@ -127,21 +127,21 @@ function checkApk() {
                     return 1
                 fi
             done
-            echo "关联包检测完成"
+            # echo "关联包检测完成"
             for value in $check_Permissions; do
                 if ! echo "$import_Permissions" | grep -q "$value"; then
                     echo "Permissions 中的值 '$value' 不在 import_ 中存在，抛出异常！"
                     return 1
                 fi
             done
-            echo "权限配置检测完成"
+            # echo "权限配置检测完成"
             for value in $check_SystemPermissions; do
                 if ! echo "$import_SystemPermissions" | grep -q "$value"; then
                     echo "SystemPermissions 中的值 '$value' 不在 import_ 中存在，抛出异常！"
                     return 1
                 fi
             done
-            echo "系统权限检测完成"
+            # echo "系统权限检测完成"
             if [ "$RES_NAME" = "$fixName" ]; then
                 for value in $check_CustomShortName; do
                     if ! echo "$import_CustomShortName" | grep -q "$value"; then
@@ -149,19 +149,19 @@ function checkApk() {
                         return 1
                     fi
                 done
-                echo "证书标识检测完成"
-             else
-              echo "开发证书【不检测标识】"
+                # echo "证书标识检测完成"
+            #  else
+            #   echo "开发证书【不检测标识】"
             fi
             
             if [ "$check_PackageName" != "$import_PackageName" ]; then
                 echo "PackageName 不同！ check_PackageName = $check_PackageName import_PackageName= $import_PackageName "
                 return 1
             fi
-            echo "包名检测完成"
+            # echo "包名检测完成"
         # fi
        
-        echo "应用与证书包名校验"
+        # echo "应用与证书包名校验"
         echo
         # # 定义要搜索的字符串
         local search_string=package=\"$package_name\"

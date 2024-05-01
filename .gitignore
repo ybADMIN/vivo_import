@@ -5,3 +5,4 @@ config.sh
 **.CER
 outapk/*
 build/*
+cers/readme.md
