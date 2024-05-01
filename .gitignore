@@ -2,6 +2,6 @@ tmp/
 bin/kt
 config.sh
 */*.apk
-*/*.CER
+**.CER
 outapk/*
 build/*

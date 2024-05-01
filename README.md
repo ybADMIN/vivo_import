@@ -12,10 +12,11 @@ ANDROID_NOTIFY_WX="企微群机器人"
 #蒲公英配置
 ANDROID_PGY="uKey=蒲公英Ukey,_api_key=蒲公英APIkey"
 #证书参数校验 需要替为自己的包名和基础证书，证书文件用于检测应用打包时候制定的正式证书配置参数是否与标准证书一致
+# 标准证书更新规则：PackageName、RelatedPackageNames、Permissions、SystemPermissions其中一项有变更
 cerOptionMap=(
-    "com_sx_sxassistant:bin/WORKPHONE.CER"
-    "com_sx_sxDemon:bin/SXDEMON.CER"
-    "com_sx_eptest:bin/EP-TEST.CER"
+    "com_sx_sxassistant:bin/standardsCer/WORKPHONE.CER"
+    "com_sx_sxDemon:bin/standardsCer/SXDEMON.CER"
+    "com_sx_eptest:bin/standardsCer/EP-TEST.CER"
 )
 
 ```
