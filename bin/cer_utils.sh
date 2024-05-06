@@ -12,8 +12,3 @@ function getValueByKey {
     
     echo "$value"
 }
-DEV_CER="debug"
-RES_CER="BJCFXX-EP"
-DEV_NAME="vivocerDEV"
-RES_NAME="vivocerRES"
-ERR_NAME="vivocerERR"

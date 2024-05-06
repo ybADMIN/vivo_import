@@ -18,6 +18,18 @@ cerOptionMap=(
     "com_sx_sxDemon:bin/standardsCer/SXDEMON.CER"
     "com_sx_eptest:bin/standardsCer/EP-TEST.CER"
 )
+#正式证书，根据不同公司标识不同
+RES_CER="XXXX-EP"
+
+#--------------------------可选配置--------------------------
+#证书标识，一般不用改动
+DEV_CER="debug"
+#开发包签名后文件名添加后缀
+DEV_NAME="vivocerDEV"
+#正式包签名后文件名添加后缀
+RES_NAME="vivocerRES"
+#如果出现错误使用后缀，一般情况下不会出现该后缀文件，目前出现错误会删除输出文件
+ERR_NAME="vivocerERR"
 
 ```
 
