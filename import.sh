@@ -180,7 +180,7 @@ if [ ! $? -eq 0 ]; then
 fi
 echo
 
-FILENAME_WITHOUT_EXTENSION="$DIRECTORY/${baseName%.apk.tmp}"
+FILENAME_WITHOUT_EXTENSION="$DIRECTORY/${baseName%.apk}"
 # 获取不带扩展名的文件名
 
 if [[ "$FILENAME_WITHOUT_EXTENSION" =~ -vivocer[A-Za-z]+ ]]; then
