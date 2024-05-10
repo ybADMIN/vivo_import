@@ -13,6 +13,7 @@ key_pass="123"
 ANDROID_NOTIFY_WX="企微群机器人"
 #蒲公英配置
 ANDROID_PGY="uKey=蒲公英Ukey,_api_key=蒲公英APIkey"
+#标准证书可以是你首个VIVO开发证书，也可以是首个VIVO正式证书，标准证书用于检测后续你的证书变更，一般不用变更除非你的关联包名、系统权限、VIVO权限、应用包名有做变更才做标准证书替换
 #证书参数校验 需要替为自己的包名和基础证书，证书文件用于检测应用打包时候制定的正式证书配置参数是否与标准证书一致
 # 标准证书更新规则：PackageName、RelatedPackageNames、Permissions、SystemPermissions其中一项有变更
 cerOptionMap=(
