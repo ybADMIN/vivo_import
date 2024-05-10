@@ -54,3 +54,21 @@ ERR_NAME="vivocerERR"
 该工具仅将证书打包进应用META-INF文件夹内，未做任何定制。您也可以自行下载使用其他工具如Android Studio打包导入。
 
 但需注意，打包商业证书时应用内文件不允许有任何修改，因安装时需要校验apk hash。
+
+
+上传和通知功能：
+目前仅支持蒲公英上传，企微通知，如无需使用可以将`import.sh`中下面代码注释即可
+```shell 
+......
+
+#上传文件到蒲公英
+source $ANDROID_BUILD_SHELL/upload.sh
+if [ ! $? -eq 0 ]; then
+   echo "upload 失败"
+   cleanupByError
+   exit 1
+fi
+
+........
+
+````
