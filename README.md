@@ -61,7 +61,7 @@ ERR_NAME="vivocerERR"
 ```shell 
 ......
 
-#上传文件到蒲公英
+#上传文件到蒲公英-
 source $ANDROID_BUILD_SHELL/upload.sh
 if [ ! $? -eq 0 ]; then
    echo "upload 失败"
