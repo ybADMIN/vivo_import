@@ -1,6 +1,8 @@
+# VIVO 自动导入证书工具
 使用步骤：
 
 0. 根目录下新建文件`config.sh` 并修改对应参数
+
 ```shell
 #KeyStore 路径
 KEY_STORE_PATH="./bin/kt"
@@ -36,7 +38,7 @@ ERR_NAME="vivocerERR"
 1. 命令行执行：import.sh <APK路径> <证书路径>"
    输出目录：outApk
    请确认你的证书存储路径在`./cers/` 中,该文件夹程序会保障证书完整性
-    
+   
 2. 检测当前文件是否存在证书 
     * . rename.sh
     * checkApk <APK 路径>
@@ -72,3 +74,7 @@ fi
 ........
 
 ````
+
+# 编译脚本导入证书
+
+ [编译时自动导入开发证书.md](gradle_import/编译时自动导入开发证书.md) 
