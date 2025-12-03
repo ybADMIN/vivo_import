@@ -90,10 +90,10 @@ echo "=====================================START================================
 echo "当前应用："
 echo $(basename "${FILE_PATH}")
 case $(basename "${FILE_PATH}") in  
-    ep*|RB-ep*)
+    ep*|RB-ep*|Top*|AIAssistant*)
         ;; # 什么都不做，如果文件名以"ep"或"RB-ep"开头  
     *)
-        echo "错误应用名称，应用必须是 \"ep\"或\"RB-ep\" 开头"  
+        echo "错误应用名称，应用必须是 \"ep\"或\"RB-ep\" \"Top\"开头 或 \"AIAssistant\"开头"  
         exit 1  
         ;;  
 esac
@@ -188,8 +188,19 @@ if [[ "$FILENAME_WITHOUT_EXTENSION" =~ -vivocer[A-Za-z]+ ]]; then
     FILENAME_WITHOUT_EXTENSION=$(echo "$FILENAME_WITHOUT_EXTENSION" | sed 's/-vivocer[^-]*//')
 fi
 OUTAPK="$FILENAME_WITHOUT_EXTENSION-${fixName}.apk"
+ALIGINDAPK="$temp_dir/${baseName%.apk}-${fixName}-aligned.apk"
+# 使用 zipalign 进行对齐
+zipalign -v 4 $FILE_PATH $ALIGINDAPK
+if [ ! $? -eq 0 ]; then
+   echo "对齐失败"
+   cleanupByError
+   exit 1
+fi
 # 使用 apksigner 进行签名
-apksigner sign --ks $KEY_STORE_PATH --v4-signing-enabled false --ks-key-alias $alias_key --ks-pass pass:$key_pass --out $OUTAPK $FILE_PATH
+apksigner sign --ks $KEY_STORE_PATH --v4-signing-enabled false --ks-key-alias $alias_key --ks-pass pass:$key_pass --out $OUTAPK $ALIGINDAPK
+# 删除对齐后的APK
+rm $ALIGINDAPK
+
 if [ ! $? -eq 0 ]; then
    echo "签名失败"
    cleanupByError

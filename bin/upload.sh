@@ -5,10 +5,10 @@ echo "文件不存在，上传失败"
 fi
 
 # 检查文件名是否包含 vivocerRES
-if ! echo "$(basename "$OUTAPK")" | grep -q "$RES_NAME"; then
-    echo "非正式包不上传蒲公英"
-    return
-fi
+# if ! echo "$(basename "$OUTAPK")" | grep -q "$RES_NAME"; then
+#     echo "非正式包不上传蒲公英"
+#     return
+# fi
 # 将用户输入转换为小写字母以便比较
 read -p "是否上传到蒲公英？（输入 Y 或 N）: " choice
 choice=$(echo "${choice}" | tr '[:upper:]' '[:lower:]')
