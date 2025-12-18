@@ -189,8 +189,8 @@ if [[ "$FILENAME_WITHOUT_EXTENSION" =~ -vivocer[A-Za-z]+ ]]; then
 fi
 OUTAPK="$FILENAME_WITHOUT_EXTENSION-${fixName}.apk"
 ALIGINDAPK="$temp_dir/${baseName%.apk}-${fixName}-aligned.apk"
-# 使用 zipalign 进行对齐
-zipalign -v 4 $FILE_PATH $ALIGINDAPK
+# 使用 zipalign 进行对齐，添加-p参数确保.so文件正确对齐
+zipalign -p 4 $FILE_PATH $ALIGINDAPK
 if [ ! $? -eq 0 ]; then
    echo "对齐失败"
    cleanupByError
